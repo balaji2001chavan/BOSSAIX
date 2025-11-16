@@ -1,0 +1,9 @@
+{
+  "short_name": "BossAIX",
+  "name": "BossAIX Galaxy AI App",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000"
+}

@@ -16,30 +16,42 @@ export default function App() {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      2000
     );
     camera.position.z = 3;
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor("#000000");
     mount.appendChild(renderer.domElement);
 
-    // TEST CUBE (RED)
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    // ⭐ WORKING GALAXY TEXTURE ⭐
+    const loader = new THREE.TextureLoader();
+    loader.crossOrigin = "";
 
-    // Animate
-    const animate = () => {
-      cube.rotation.x += 0.02;
-      cube.rotation.y += 0.02;
+    loader.load(
+      "https://raw.githubusercontent.com/balaji2001chavan/assets/main/stars_milkyway.jpg",
+      (texture) => {
+        const geometry = new THREE.SphereGeometry(1000, 64, 64);
+        const material = new THREE.MeshBasicMaterial({
+          map: texture,
+          side: THREE.BackSide,
+        });
+        const universe = new THREE.Mesh(geometry, material);
+        scene.add(universe);
 
-      renderer.render(scene, camera);
-      requestAnimationFrame(animate);
-    };
-    animate();
+        // Rotation
+        const animate = () => {
+          universe.rotation.y += 0.0005;
+          universe.rotation.x += 0.0002;
+
+          renderer.render(scene, camera);
+          requestAnimationFrame(animate);
+        };
+        animate();
+      }
+    );
 
     return () => {
       mount.removeChild(renderer.domElement);
@@ -51,7 +63,8 @@ export default function App() {
       <div ref={mountRef} className="universe"></div>
 
       <div className="welcome-text">
-        Testing 3D Engine…
+        🌌 BossAIX | Live Galaxy Engine  
+        <br /> Real Universe Loading…
       </div>
     </div>
   );

@@ -1,23 +1,15 @@
 body {
   margin: 0;
-  padding: 0;
   overflow: hidden;
   background: black;
 }
 
-.app-container {
+.universe {
   width: 100vw;
   height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-
-.galaxy {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .welcome-text {
@@ -25,8 +17,8 @@ body {
   top: 40%;
   width: 100%;
   text-align: center;
-  font-size: 26px;
   color: white;
-  z-index: 10;
+  font-size: 24px;
+  z-index: 5;
   font-family: Arial;
 }

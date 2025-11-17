@@ -1,71 +1,61 @@
-// -----------------------------------------------------
-//  BOSS AIX – REAL LIVE EPHEMERIS ENGINE (v1)
-//  Sun + Moon + Planets + ISS (Real-Time Live Data)
-// -----------------------------------------------------
+// -------------------------------------------------------
+//   BOSS AIX – SMART REAL LIVE UNIVERSE ENGINE (v2)
+//   ONE FILE → FULL COSMOS LIVE (Sun + Moon + Planets + ISS + Satellites)
+// -------------------------------------------------------
 
 import { getSunLive } from "./SunLiveData";
 import { getMoonLive } from "./MoonLiveData";
 import { getPlanetsLive } from "./PlanetLiveData";
 import { getISSLive } from "./ISSLiveData";
+import { getSatellitesLive } from "./SatellitesLiveData";
 
 export class BossAIX_Engine {
 
     constructor(updateInterval = 2000) {
-        this.updateInterval = updateInterval;   // 2 seconds
-        this.mode = "AUTO";                     // Sun/Earth/Sky Auto Mode
-        this.data = {};                         // All live data
-        this.subscribers = [];                  // Render engine connections
+        this.updateInterval = updateInterval; 
+        this.mode = "AUTO";
+        this.data = {};
+        this.subscribers = [];
     }
 
-    // ------------------------------
-    // LIVE DATA LOADERS
-    // ------------------------------
+    // -------------------------
+    // LIVE DATA LOADING
+    // -------------------------
 
     async loadSunLive() {
-        const sun = await getSunLive();
-        this.data.sun = sun;
+        this.data.sun = await getSunLive();
     }
 
     async loadMoonLive() {
-        const moon = await getMoonLive();
-        this.data.moon = moon;
+        this.data.moon = await getMoonLive();
     }
 
     async loadPlanetsLive() {
-        const planets = await getPlanetsLive();
-        this.data.planets = planets;
+        this.data.planets = await getPlanetsLive();
     }
 
     async loadISS() {
-        const iss = await getISSLive();
-        this.data.iss = iss;
+        this.data.iss = await getISSLive();
     }
 
-    // बाकिचे modules नंतर जोडू
-    async loadStars() {}
-    async loadAurora() {}
-    async loadSatellitesLive() {}
+    async loadSatellitesLive() {
+        this.data.satellites = await getSatellitesLive();
+    }
 
-    // ------------------------------
-    // AUTO MODE DECISION SYSTEM
-    // ------------------------------
+    // -------------------------
+    // AUTO MODE (DAY/NIGHT)
+    // -------------------------
     decideModeByTime() {
         const hour = new Date().getHours();
 
-        if (hour >= 6 && hour < 17) {
-            this.mode = "SUN";       // Morning
-        }
-        else if (hour >= 17 && hour < 19) {
-            this.mode = "EARTH";     // Sunset
-        }
-        else {
-            this.mode = "SKY";       // Night Sky
-        }
+        if (hour >= 6 && hour < 17) this.mode = "SUN";      // Day view
+        else if (hour >= 17 && hour < 19) this.mode = "EARTH"; // Evening solar system
+        else this.mode = "SKY";                             // Night sky mode
     }
 
-    // ------------------------------
-    // MASTER UPDATE LOOP (EVERY 2 SEC)
-    // ------------------------------
+    // -------------------------
+    // UNIVERSE UPDATE LOOP
+    // -------------------------
     async update() {
         this.decideModeByTime();
 
@@ -73,22 +63,23 @@ export class BossAIX_Engine {
         await this.loadMoonLive();
         await this.loadPlanetsLive();
         await this.loadISS();
+        await this.loadSatellitesLive();
 
         this.broadcast();
     }
 
-    // ------------------------------
-    // SEND LIVE DATA TO 3D ENGINE
-    // ------------------------------
+    // -------------------------
+    // SEND DATA TO 3D RENDER
+    // -------------------------
     broadcast() {
         for (let fn of this.subscribers) {
             fn(this.data);
         }
     }
 
-    // ------------------------------
-    // SUBSCRIBE RENDER MODULE
-    // ------------------------------
+    // -------------------------
+    // SUBSCRIBE FROM FRONTEND
+    // -------------------------
     onUpdate(callback) {
         this.subscribers.push(callback);
     }

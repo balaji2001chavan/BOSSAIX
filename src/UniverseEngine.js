@@ -1,78 +1,76 @@
 import * as THREE from "three";
 
 export function runUniverseEngine(mount) {
-  const scene = new THREE.Scene();
 
+  // SCENE
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  // CAMERA
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    2000
+    1000
   );
   camera.position.z = 5;
 
+  // RENDERER
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   mount.appendChild(renderer.domElement);
 
-  // LIGHT
+  // LIGHT (Sun-like)
   const light = new THREE.PointLight(0xffffff, 2);
-  light.position.set(5, 5, 5);
+  light.position.set(10, 10, 10);
   scene.add(light);
-// 🌟 SMOOTH GLOWING STARFIELD 🌟
-function addStars(scene) {
-  const starTexture = new THREE.TextureLoader().load(
-    "https://threejs.org/examples/textures/sprites/star.png"
-  );
 
-  const starGeometry = new THREE.BufferGeometry();
-  const starCount = 1500;
-  const starPositions = [];
-
-  for (let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 300;
-    const y = (Math.random() - 0.5) * 300;
-    const z = (Math.random() - 0.5) * 300;
-    starPositions.push(x, y, z);
-  }
-
-  starGeometry.setAttribute(
-    "position",
-    new THREE.Float32BufferAttribute(starPositions, 3)
-  );
-
-  const starMaterial = new THREE.PointsMaterial({
-    map: starTexture,
-    transparent: true,
-    color: 0xffffff,
-    size: 2,
-    sizeAttenuation: true
-  });
-
-  const stars = new THREE.Points(starGeometry, starMaterial);
-  scene.add(stars);
-}
-
-// ADD STARS
-addStars(scene);
-  // EARTH
+  // 🌍 EARTH
   const earthGeo = new THREE.SphereGeometry(1.3, 32, 32);
-  const earthMat = new THREE.MeshStandardMaterial({ color: 0x3399ff });
+  const earthMat = new THREE.MeshStandardMaterial({ color: 0x3498db });
   const earth = new THREE.Mesh(earthGeo, earthMat);
   scene.add(earth);
 
-  // MOON
+  // 🌙 MOON
   const moonGeo = new THREE.SphereGeometry(0.35, 32, 32);
-  const moonMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+  const moonMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0 });
   const moon = new THREE.Mesh(moonGeo, moonMat);
   scene.add(moon);
 
+  // ⭐ STARFIELD (GUARANTEED WORKING - NO TEXTURES)
+  function addStars() {
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.03
+    });
+
+    const starVertices = [];
+    for (let i = 0; i < 2000; i++) {
+      const x = (Math.random() - 0.5) * 100;
+      const y = (Math.random() - 0.5) * 100;
+      const z = (Math.random() - 0.5) * 100;
+      starVertices.push(x, y, z);
+    }
+
+    starsGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(starVertices, 3)
+    );
+
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+  }
+
+  addStars();
+
+  // ANIMATION
   function animate() {
     requestAnimationFrame(animate);
 
-    earth.rotation.y += 0.008;
+    earth.rotation.y += 0.01;
 
-    const t = Date.now() * 0.0005;
+    const t = Date.now() * 0.0004;
     moon.position.x = Math.cos(t) * 3;
     moon.position.z = Math.sin(t) * 3;
 
@@ -80,4 +78,11 @@ addStars(scene);
   }
 
   animate();
+
+  // RESIZE
+  window.addEventListener("resize", () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
 }

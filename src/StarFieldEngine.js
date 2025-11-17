@@ -1,5 +1,5 @@
 // -------------------------------------------------------
-//  BOSS AIX – REAL STARFIELD ENGINE (50,000 STARS)
+//  BOSS AIX – STARFIELD ENGINE (50,000 Stars + Rotation)
 // -------------------------------------------------------
 
 export function createStarField(scene, THREE) {
@@ -28,6 +28,14 @@ export function createStarField(scene, THREE) {
 
     const stars = new THREE.Points(geometry, material);
     scene.add(stars);
+
+    // ⭐ ADD ROTATION ANIMATION
+    function rotateStars() {
+        requestAnimationFrame(rotateStars);
+        stars.rotation.y += 0.0003;
+        stars.rotation.x += 0.0001;
+    }
+    rotateStars();
 
     return stars;
 }

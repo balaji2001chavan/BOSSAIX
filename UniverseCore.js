@@ -1,38 +1,34 @@
-// ========================================================
-// ⭐ BOSS AIX — SMART EARTH AUTO-CONNECT ENGINE (1 FILE)
-// ========================================================
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import { createUniverseCore } from "./UniverseCore";
 
-(function setupEarthLayer() {
+export default function App() {
+  const mountRef = useRef(null);
 
-    // Import Earth Engine
-    import("./EarthLevel").then(module => {
+  useEffect(() => {
+    if (!mountRef.current) {
+      console.error("❌ mountRef missing");
+      return;
+    }
 
-        const createEarthLevel = module.createEarthLevel;
+    // run UniverseCore
+    const core = createUniverseCore(THREE);
 
-        // Wait until UniverseCore is fully loaded
-        const checkInterval = setInterval(() => {
+    // attach canvas
+    mountRef.current.innerHTML = "";
+    mountRef.current.appendChild(core.renderer.domElement);
 
-            if (window.BOSS_UNIVERSE_CORE_READY) {
+  }, []);
 
-                clearInterval(checkInterval);
-
-                // Access THREE + Layers from UniverseCore
-                const { THREE, layers, registerAnimation } = window.BOSS_CORE_API;
-
-                // Create Earth inside the correct layer
-                const earth = createEarthLevel(THREE, layers.earthLayer);
-
-                // Register Earth animation automatically
-                registerAnimation(() => {
-                    if (earth && earth.tick) earth.tick();
-                });
-
-                console.log("🌍 Earth Level Loaded Successfully");
-
-            }
-
-        }, 50);
-
-    });
-
-})();
+  return (
+    <div
+      ref={mountRef}
+      style={{
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+        background: "black",
+      }}
+    ></div>
+  );
+}

@@ -15,7 +15,7 @@ export default function App() {
         width: "100vw",
         height: "100vh",
         background: "black",
-        overflow: "hidden",
+        overflow: "hidden"
       }}
     ></div>
   );

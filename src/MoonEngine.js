@@ -1,20 +1,15 @@
-// -----------------------------------------------------
-//  BOSS AIX – REAL MOON ENGINE (HD MOON + ORBIT)
-// -----------------------------------------------------
-
 export function createMoon(scene, THREE) {
 
     const loader = new THREE.TextureLoader();
 
     const moonTexture = loader.load(
-        "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main/textures/moon.jpg"
+        "https://threejs.org/examples/textures/planets/moon_1024.jpg"
     );
 
     const moonGeo = new THREE.SphereGeometry(15, 64, 64);
     const moonMat = new THREE.MeshPhongMaterial({
         map: moonTexture
     });
-
     const moon = new THREE.Mesh(moonGeo, moonMat);
     scene.add(moon);
 
@@ -31,6 +26,4 @@ export function createMoon(scene, THREE) {
     }
 
     orbitMoon();
-
-    return moon;
 }

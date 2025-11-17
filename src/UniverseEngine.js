@@ -1,24 +1,20 @@
-// -------------------------------
-// STARFIELD INTEGRATION (NEW)
-// -------------------------------
+// ----------------------------------------------
+// EARTH ENGINE INTEGRATION (SMART FINAL CODE)
+// ----------------------------------------------
 
-import { createStarField } from "./StarFieldEngine";
+import { createEarth } from "./EarthEngine";   // <-- DIRECT IMPORT
 
-// THREE.js scene + camera + renderer तयार झाल्यानंतर:
-export function initUniverse(scene, camera, renderer) {
+export function initUniverse(scene, camera, renderer, THREE) {
 
-    // ★ Create Real Starfield (50,000 stars)
-    const stars = createStarField(scene);
+    // ★ Create Real Earth (HD Texture + Clouds + Glow)
+    const earthSystem = createEarth(scene, THREE);
 
-    // ★ Adjust camera if needed
-    camera.position.set(0, 0, 500);
+    // ★ Camera position (adjust for better Earth view)
+    camera.position.set(0, 0, 200);
 
-    // ★ Start Rendering Loop
+    // ★ Start Render Animation Loop
     function animate() {
         requestAnimationFrame(animate);
-
-        // rotate starfield slowly (sky motion feel)
-        stars.rotation.y += 0.0003;
 
         renderer.render(scene, camera);
     }

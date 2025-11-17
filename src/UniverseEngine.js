@@ -1,31 +1,34 @@
 import * as THREE from "three";
 
 export function runUniverseEngine(mount) {
-  // Scene
   const scene = new THREE.Scene();
 
-  // Camera
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
     2000
   );
-  camera.position.z = 3;
+  camera.position.z = 5;
 
-  // Renderer
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   mount.appendChild(renderer.domElement);
 
-  // ---------- LOAD ASSETS FROM YOUR REPO ----------
-  const ASSETS = "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main";
+  // GLOBAL OBJECTS
+  let earth = null;
+  let moon = null;
+  let stars = null;
 
-  // Stars (Procedural)
-  fetch(`${ASSETS}/stars/starfield.json`)
-    .then(res => res.json())
-    .then(starConf => {
-      const starGeometry = new THREE.BufferGeometry();
+  const loader = new THREE.TextureLoader();
+
+  // Load starfield
+  fetch(
+    "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main/stars/starfield.json"
+  )
+    .then((res) => res.json())
+    .then((starConf) => {
+      const starGeo = new THREE.BufferGeometry();
       const starPositions = [];
 
       for (let i = 0; i < starConf.count; i++) {
@@ -35,72 +38,71 @@ export function runUniverseEngine(mount) {
         starPositions.push(x, y, z);
       }
 
-      starGeometry.setAttribute(
+      starGeo.setAttribute(
         "position",
         new THREE.Float32BufferAttribute(starPositions, 3)
       );
 
-      const starMaterial = new THREE.PointsMaterial({
+      const starMat = new THREE.PointsMaterial({
         color: 0xffffff,
-        size: 0.7
+        size: 0.8,
       });
 
-      const stars = new THREE.Points(starGeometry, starMaterial);
+      stars = new THREE.Points(starGeo, starMat);
       scene.add(stars);
     });
 
-  // ---------- Earth ----------
-  fetch(`${ASSETS}/planets/earth.json`)
-    .then(res => res.json())
-    .then(earthConf => {
-      const geometry = new THREE.SphereGeometry(1, 32, 32);
-      const material = new THREE.MeshStandardMaterial({
-        color: earthConf.landColor
-      });
+  // Light
+  const light = new THREE.PointLight(0xffffff, 2);
+  light.position.set(5, 5, 5);
+  scene.add(light);
 
-      const earth = new THREE.Mesh(geometry, material);
+  // Earth
+  fetch(
+    "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main/planets/earth.json"
+  )
+    .then((r) => r.json())
+    .then(() => {
+      const geo = new THREE.SphereGeometry(1, 32, 32);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x1ca53a });
+
+      earth = new THREE.Mesh(geo, mat);
       earth.position.set(0, 0, -5);
       scene.add(earth);
-
-      // Light
-      const light = new THREE.PointLight(0xffffff, 2);
-      light.position.set(5, 5, 5);
-      scene.add(light);
-
-      // Animate Earth
-      function animateEarth() {
-        earth.rotation.y += 0.002;
-        requestAnimationFrame(animateEarth);
-      }
-      animateEarth();
     });
 
-  // ---------- Moon ----------
-  fetch(`${ASSETS}/planets/moon.json`)
-    .then(res => res.json())
-    .then(config => {
-      const moonGeo = new THREE.SphereGeometry(0.27, 32, 32);
-      const moonMat = new THREE.MeshStandardMaterial({ color: 0xbfbfbf });
+  // Moon
+  fetch(
+    "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main/planets/moon.json"
+  )
+    .then((r) => r.json())
+    .then(() => {
+      const mGeo = new THREE.SphereGeometry(0.27, 32, 32);
+      const mMat = new THREE.MeshStandardMaterial({ color: 0xbfbfbf });
 
-      const moon = new THREE.Mesh(moonGeo, moonMat);
-      moon.position.set(1.5, 0, -5);
+      moon = new THREE.Mesh(mGeo, mMat);
+      moon.position.set(2, 0, -5);
       scene.add(moon);
-
-      function animateMoon() {
-        moon.rotation.y += 0.003;
-        requestAnimationFrame(animateMoon);
-      }
-      animateMoon();
     });
 
-  // ---------- Animate Scene ----------
+  // ANIMATE EVERYTHING
   const animate = () => {
+    if (stars) stars.rotation.y += 0.0005;
+
+    if (earth) earth.rotation.y += 0.002;
+
+    if (moon && earth) {
+      const t = Date.now() * 0.0005;
+      moon.position.x = earth.position.x + Math.cos(t) * 2;
+      moon.position.z = earth.position.z + Math.sin(t) * 2;
+    }
+
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   };
+
   animate();
 
-  // Resize
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;

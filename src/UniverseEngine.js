@@ -2,130 +2,129 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export function runUniverseEngine(mount) {
-  // Scene
+
+  // -------------------- SCENE --------------------
   const scene = new THREE.Scene();
 
-  // Camera
+  // -------------------- CAMERA --------------------
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    3000
+    5000
   );
-  camera.position.set(0, 2, 6);
+  camera.position.set(0, 2, 8);
 
-  // Renderer
+  // -------------------- RENDERER --------------------
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
   mount.appendChild(renderer.domElement);
 
-  // Controls (Touch + Mouse orbit)
+  // -------------------- CAMERA CONTROLS --------------------
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.rotateSpeed = 0.4;
-  controls.zoomSpeed = 0.6;
+  controls.rotateSpeed = 0.5;
+  controls.zoomSpeed = 0.8;
 
-  // Load assets from repo
-  const ASSETS =
-    "https://raw.githubusercontent.com/balaji2001chavan/bossaix-assets/main";
-
-  // ---------------- GALAXY BACKGROUND ----------------
-  const galaxyGeo = new THREE.SphereGeometry(1200, 64, 64);
+  // -------------------- SKYBOX (REAL GALAXY) --------------------
+  const galaxyTexture = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/matiasvasquez/threejs-galaxy/master/textures/galaxy.png"
+  );
+  const galaxyGeo = new THREE.SphereGeometry(2000, 64, 64);
   const galaxyMat = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.15,
-    side: THREE.BackSide
+    map: galaxyTexture,
+    side: THREE.BackSide,
+    opacity: 0.9,
+    transparent: true
   });
   const galaxy = new THREE.Mesh(galaxyGeo, galaxyMat);
   scene.add(galaxy);
 
-  // ---------------- STARS (Procedural) ----------------
-  let stars;
-  fetch(`${ASSETS}/stars/starfield.json`)
-    .then((res) => res.json())
-    .then((conf) => {
-      const geo = new THREE.BufferGeometry();
-      const pos = [];
+  // -------------------- SUN (GLOW) --------------------
+  const sunTexture = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/sprites/sun.png"
+  );
+  const sunGeo = new THREE.SphereGeometry(2.5, 64, 64);
+  const sunMat = new THREE.MeshBasicMaterial({ map: sunTexture });
+  const sun = new THREE.Mesh(sunGeo, sunMat);
+  sun.position.set(15, 0, -10);
+  scene.add(sun);
 
-      for (let i = 0; i < conf.count; i++) {
-        const x = (Math.random() - 0.5) * conf.radius;
-        const y = (Math.random() - 0.5) * conf.radius;
-        const z = (Math.random() - 0.5) * conf.radius;
-        pos.push(x, y, z);
-      }
-
-      geo.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(pos, 3)
-      );
-
-      stars = new THREE.Points(
-        geo,
-        new THREE.PointsMaterial({ color: 0xffffff, size: 1 })
-      );
-
-      scene.add(stars);
-    });
-
-  // ---------------- LIGHT ----------------
-  const sunLight = new THREE.PointLight(0xffffff, 3);
-  sunLight.position.set(10, 10, 10);
+  const sunLight = new THREE.PointLight(0xffffff, 3, 300);
+  sunLight.position.copy(sun.position);
   scene.add(sunLight);
 
-  // ---------------- EARTH ----------------
-  let earth;
-  fetch(`${ASSETS}/planets/earth.json`)
-    .then((res) => res.json())
-    .then((json) => {
-      const geo = new THREE.SphereGeometry(1, 64, 64);
-      const mat = new THREE.MeshStandardMaterial({
-        color: json.landColor,
-        roughness: 0.6,
-        metalness: 0.1
-      });
+  // -------------------- EARTH (HD TEXTURES) --------------------
+  const earthGeo = new THREE.SphereGeometry(1.4, 64, 64);
 
-      earth = new THREE.Mesh(geo, mat);
-      earth.position.set(0, 0, 0);
-      scene.add(earth);
-    });
+  const earthDay = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_daymap.jpg"
+  );
+  const earthNight = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_nightmap.jpg"
+  );
+  const earthClouds = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_clouds.png"
+  );
 
-  // ---------------- MOON ----------------
-  let moon;
-  fetch(`${ASSETS}/planets/moon.json`)
-    .then((res) => res.json())
-    .then((conf) => {
-      const geo = new THREE.SphereGeometry(0.27, 32, 32);
-      const mat = new THREE.MeshStandardMaterial({
-        color: 0xbfbfbf
-      });
+  const earthMat = new THREE.MeshStandardMaterial({
+    map: earthDay,
+    emissiveMap: earthNight,
+    emissiveIntensity: 1.5
+  });
 
-      moon = new THREE.Mesh(geo, mat);
-      scene.add(moon);
-    });
+  const earth = new THREE.Mesh(earthGeo, earthMat);
+  earth.position.set(0, 0, 0);
+  scene.add(earth);
 
-  // ---------------- ANIMATION LOOP ----------------
-  const animate = () => {
+  // Earth Clouds Layer
+  const cloudGeo = new THREE.SphereGeometry(1.42, 64, 64);
+  const cloudMat = new THREE.MeshStandardMaterial({
+    map: earthClouds,
+    transparent: true,
+    opacity: 0.8
+  });
+  const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+  earth.add(clouds);
+
+  // -------------------- MOON (HD) --------------------
+  const moonTexture = new THREE.TextureLoader().load(
+    "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/moon_1024.jpg"
+  );
+
+  const moonGeo = new THREE.SphereGeometry(0.4, 64, 64);
+  const moonMat = new THREE.MeshStandardMaterial({
+    map: moonTexture,
+    roughness: 1
+  });
+  const moon = new THREE.Mesh(moonGeo, moonMat);
+  scene.add(moon);
+
+  // -------------------- ANIMATION --------------------
+  function animate() {
     requestAnimationFrame(animate);
 
-    if (stars) stars.rotation.y += 0.0002;
+    // Galaxy rotation
+    galaxy.rotation.y += 0.0002;
 
-    if (earth) earth.rotation.y += 0.002;
+    // Earth rotation
+    earth.rotation.y += 0.002;
+    clouds.rotation.y += 0.0015;
 
-    if (moon && earth) {
-      const t = Date.now() * 0.0004;
-      moon.position.x = Math.cos(t) * 2.5;
-      moon.position.z = Math.sin(t) * 2.5;
-      moon.position.y = 0.1 * Math.sin(t * 2);
-    }
+    // Moon orbit
+    const t = Date.now() * 0.0004;
+    moon.position.x = Math.cos(t) * 4;
+    moon.position.z = Math.sin(t) * 4;
+    moon.position.y = 0.6 * Math.sin(t * 2);
 
     controls.update();
     renderer.render(scene, camera);
-  };
+  }
 
   animate();
 
-  // ---------------- RESIZE ----------------
+  // -------------------- RESIZE --------------------
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;

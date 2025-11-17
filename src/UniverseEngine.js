@@ -1,7 +1,3 @@
-// -------------------------------------------------------
-//  BOSS AIX – FULL WORKING UNIVERSE ENGINE (FINAL BUILD)
-// -------------------------------------------------------
-
 import * as THREE from "three";
 import { createEarth } from "./EarthEngine";
 import { createMoon } from "./MoonEngine";
@@ -24,30 +20,33 @@ export function initUniverse(mountRef) {
     // RENDERER
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mountRef.clientWidth, mountRef.clientHeight);
+
+    mountRef.innerHTML = ""; // clear old canvas
     mountRef.appendChild(renderer.domElement);
 
-    // LIGHT (SUN)
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2);
-    sunLight.position.set(300, 200, 150);
+    // SUN LIGHT
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    sunLight.position.set(200, 150, 100);
     scene.add(sunLight);
 
-    // BACKGROUND STARS
+    // STARS
     createStarField(scene, THREE);
 
-    // REAL EARTH
-    const earthSystem = createEarth(scene, THREE);
+    // EARTH
+    createEarth(scene, THREE);
 
-    // REAL MOON
-    const moon = createMoon(scene, THREE);
+    // MOON
+    createMoon(scene, THREE);
 
     // RENDER LOOP
     function animate() {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
     }
+
     animate();
 
-    // WINDOW RESIZE SUPPORT
+    // RESIZE SUPPORT
     window.addEventListener("resize", () => {
         camera.aspect = mountRef.clientWidth / mountRef.clientHeight;
         camera.updateProjectionMatrix();

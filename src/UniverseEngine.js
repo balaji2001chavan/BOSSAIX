@@ -18,16 +18,39 @@ export function runUniverseEngine(mount) {
   renderer.setSize(window.innerWidth, window.innerHeight);
   mount.appendChild(renderer.domElement);
 
-  // GREEN test sphere (if this shows, 3D is working!)
-  const geo = new THREE.SphereGeometry(1, 32, 32);
-  const mat = new THREE.MeshBasicMaterial({ color: "lime" });
-  const sphere = new THREE.Mesh(geo, mat);
-  scene.add(sphere);
+  // EARTH (simple color)
+  const earthGeo = new THREE.SphereGeometry(1.3, 32, 32);
+  const earthMat = new THREE.MeshStandardMaterial({
+    color: 0x3399ff
+  });
+  const earth = new THREE.Mesh(earthGeo, earthMat);
+  scene.add(earth);
 
-  // Animation
+  // MOON (simple color)
+  const moonGeo = new THREE.SphereGeometry(0.35, 32, 32);
+  const moonMat = new THREE.MeshStandardMaterial({
+    color: 0xcccccc
+  });
+  const moon = new THREE.Mesh(moonGeo, moonMat);
+  scene.add(moon);
+
+  // LIGHT
+  const light = new THREE.PointLight(0xffffff, 2);
+  light.position.set(5, 5, 5);
+  scene.add(light);
+
+  // ANIMATION
   function animate() {
     requestAnimationFrame(animate);
-    sphere.rotation.y += 0.01;
+
+    // Earth rotation
+    earth.rotation.y += 0.008;
+
+    // Moon orbit
+    const t = Date.now() * 0.0005;
+    moon.position.x = Math.cos(t) * 3;
+    moon.position.z = Math.sin(t) * 3;
+
     renderer.render(scene, camera);
   }
 

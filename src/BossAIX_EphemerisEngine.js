@@ -1,23 +1,25 @@
-// ----------------------------------------------
+// -----------------------------------------------------
 //  BOSS AIX – REAL LIVE EPHEMERIS ENGINE (v1)
-//  WITH SUN + MOON REAL-TIME MODULES CONNECTED
-// ----------------------------------------------
+//  Sun + Moon + Planets + ISS (Real-Time Live Data)
+// -----------------------------------------------------
 
 import { getSunLive } from "./SunLiveData";
 import { getMoonLive } from "./MoonLiveData";
+import { getPlanetsLive } from "./PlanetLiveData";
+import { getISSLive } from "./ISSLiveData";
 
 export class BossAIX_Engine {
 
     constructor(updateInterval = 2000) {
         this.updateInterval = updateInterval;   // 2 seconds
-        this.mode = "AUTO";                     // Auto Switch Mode (DAY/NIGHT)
-        this.data = {};                         // All celestial data stored here
-        this.subscribers = [];                  // 3D render subscribers
+        this.mode = "AUTO";                     // Sun/Earth/Sky Auto Mode
+        this.data = {};                         // All live data
+        this.subscribers = [];                  // Render engine connections
     }
 
-    // -------------------------------
-    // LIVE LOADERS (SUN + MOON ACTIVE)
-    // -------------------------------
+    // ------------------------------
+    // LIVE DATA LOADERS
+    // ------------------------------
 
     async loadSunLive() {
         const sun = await getSunLive();
@@ -29,27 +31,65 @@ export class BossAIX_Engine {
         this.data.moon = moon;
     }
 
-    // बाकी modules नंतर add करू
-    async loadEarthLive() {}
-    async loadPlanetsLive() {}
-    async loadISS() {}
-    async loadSatellitesLive() {}
-    async loadAurora() {}
-    async loadStars() {}
+    async loadPlanetsLive() {
+        const planets = await getPlanetsLive();
+        this.data.planets = planets;
+    }
 
-    // --------------------------------
-    // AUTO-MODE DECISION
-    // --------------------------------
+    async loadISS() {
+        const iss = await getISSLive();
+        this.data.iss = iss;
+    }
+
+    // बाकिचे modules नंतर जोडू
+    async loadStars() {}
+    async loadAurora() {}
+    async loadSatellitesLive() {}
+
+    // ------------------------------
+    // AUTO MODE DECISION SYSTEM
+    // ------------------------------
     decideModeByTime() {
         const hour = new Date().getHours();
 
-        if (hour >= 6 && hour < 17) this.mode = "SUN";     // Morning → Sun Mode
-        else if (hour >= 17 && hour < 19) this.mode = "EARTH"; // Evening → Solar System Mode
-        else this.mode = "SKY";                            // Night → Live Sky Mode
+        if (hour >= 6 && hour < 17) {
+            this.mode = "SUN";       // Morning
+        }
+        else if (hour >= 17 && hour < 19) {
+            this.mode = "EARTH";     // Sunset
+        }
+        else {
+            this.mode = "SKY";       // Night Sky
+        }
     }
 
-    // --------------------------------
-    // MASTER UPDATE LOOP (Every 2 sec)
-    // --------------------------------
+    // ------------------------------
+    // MASTER UPDATE LOOP (EVERY 2 SEC)
+    // ------------------------------
     async update() {
-        this.dec
+        this.decideModeByTime();
+
+        await this.loadSunLive();
+        await this.loadMoonLive();
+        await this.loadPlanetsLive();
+        await this.loadISS();
+
+        this.broadcast();
+    }
+
+    // ------------------------------
+    // SEND LIVE DATA TO 3D ENGINE
+    // ------------------------------
+    broadcast() {
+        for (let fn of this.subscribers) {
+            fn(this.data);
+        }
+    }
+
+    // ------------------------------
+    // SUBSCRIBE RENDER MODULE
+    // ------------------------------
+    onUpdate(callback) {
+        this.subscribers.push(callback);
+    }
+}

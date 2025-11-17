@@ -1,130 +1,87 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export function runUniverseEngine(mount) {
 
-  // -------------------- SCENE --------------------
+  // SCENE
   const scene = new THREE.Scene();
 
-  // -------------------- CAMERA --------------------
+  // CAMERA
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    5000
+    3000
   );
   camera.position.set(0, 2, 8);
 
-  // -------------------- RENDERER --------------------
+  // RENDERER
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(1.5);
   mount.appendChild(renderer.domElement);
 
-  // -------------------- CAMERA CONTROLS --------------------
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.rotateSpeed = 0.5;
-  controls.zoomSpeed = 0.8;
+  // LIGHT
+  const light = new THREE.PointLight(0xffffff, 2);
+  light.position.set(10, 10, 10);
+  scene.add(light);
 
-  // -------------------- SKYBOX (REAL GALAXY) --------------------
+  // ---------------- GALAXY BACKGROUND ----------------
   const galaxyTexture = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/matiasvasquez/threejs-galaxy/master/textures/galaxy.png"
+    "https://threejs.org/examples/textures/planets/starfield.jpg"
   );
-  const galaxyGeo = new THREE.SphereGeometry(2000, 64, 64);
+
+  const galaxyGeo = new THREE.SphereGeometry(1500, 32, 32);
   const galaxyMat = new THREE.MeshBasicMaterial({
     map: galaxyTexture,
-    side: THREE.BackSide,
-    opacity: 0.9,
-    transparent: true
+    side: THREE.BackSide
   });
+
   const galaxy = new THREE.Mesh(galaxyGeo, galaxyMat);
   scene.add(galaxy);
 
-  // -------------------- SUN (GLOW) --------------------
-  const sunTexture = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/sprites/sun.png"
-  );
-  const sunGeo = new THREE.SphereGeometry(2.5, 64, 64);
-  const sunMat = new THREE.MeshBasicMaterial({ map: sunTexture });
-  const sun = new THREE.Mesh(sunGeo, sunMat);
-  sun.position.set(15, 0, -10);
-  scene.add(sun);
-
-  const sunLight = new THREE.PointLight(0xffffff, 3, 300);
-  sunLight.position.copy(sun.position);
-  scene.add(sunLight);
-
-  // -------------------- EARTH (HD TEXTURES) --------------------
-  const earthGeo = new THREE.SphereGeometry(1.4, 64, 64);
-
-  const earthDay = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_daymap.jpg"
-  );
-  const earthNight = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_nightmap.jpg"
-  );
-  const earthClouds = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/hampusborgos/earth-reverse-map/master/assets/8k_earth_clouds.png"
+  // ---------------- EARTH ----------------
+  const earthGeo = new THREE.SphereGeometry(1.3, 32, 32);
+  const earthTexture = new THREE.TextureLoader().load(
+    "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
   );
 
   const earthMat = new THREE.MeshStandardMaterial({
-    map: earthDay,
-    emissiveMap: earthNight,
-    emissiveIntensity: 1.5
+    map: earthTexture
   });
 
   const earth = new THREE.Mesh(earthGeo, earthMat);
   earth.position.set(0, 0, 0);
   scene.add(earth);
 
-  // Earth Clouds Layer
-  const cloudGeo = new THREE.SphereGeometry(1.42, 64, 64);
-  const cloudMat = new THREE.MeshStandardMaterial({
-    map: earthClouds,
-    transparent: true,
-    opacity: 0.8
-  });
-  const clouds = new THREE.Mesh(cloudGeo, cloudMat);
-  earth.add(clouds);
-
-  // -------------------- MOON (HD) --------------------
+  // ---------------- MOON ----------------
+  const moonGeo = new THREE.SphereGeometry(0.35, 32, 32);
   const moonTexture = new THREE.TextureLoader().load(
-    "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/moon_1024.jpg"
+    "https://threejs.org/examples/textures/planets/moon_1024.jpg"
   );
 
-  const moonGeo = new THREE.SphereGeometry(0.4, 64, 64);
   const moonMat = new THREE.MeshStandardMaterial({
-    map: moonTexture,
-    roughness: 1
+    map: moonTexture
   });
+
   const moon = new THREE.Mesh(moonGeo, moonMat);
   scene.add(moon);
 
-  // -------------------- ANIMATION --------------------
+  // ---------------- ANIMATION ----------------
   function animate() {
     requestAnimationFrame(animate);
 
-    // Galaxy rotation
-    galaxy.rotation.y += 0.0002;
-
-    // Earth rotation
     earth.rotation.y += 0.002;
-    clouds.rotation.y += 0.0015;
 
-    // Moon orbit
     const t = Date.now() * 0.0004;
-    moon.position.x = Math.cos(t) * 4;
-    moon.position.z = Math.sin(t) * 4;
-    moon.position.y = 0.6 * Math.sin(t * 2);
+    moon.position.x = Math.cos(t) * 3;
+    moon.position.z = Math.sin(t) * 3;
 
-    controls.update();
     renderer.render(scene, camera);
   }
 
   animate();
 
-  // -------------------- RESIZE --------------------
+  // ---------------- RESIZE ----------------
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;

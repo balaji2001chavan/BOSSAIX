@@ -19,16 +19,20 @@ export function runUniverseEngine(mount) {
   const light = new THREE.PointLight(0xffffff, 2);
   light.position.set(5, 5, 5);
   scene.add(light);
-// ⭐ SIMPLE STARFIELD BACKGROUND ⭐
+// 🌟 SMOOTH GLOWING STARFIELD 🌟
 function addStars(scene) {
+  const starTexture = new THREE.TextureLoader().load(
+    "https://threejs.org/examples/textures/sprites/star.png"
+  );
+
   const starGeometry = new THREE.BufferGeometry();
-  const starCount = 1000;  
+  const starCount = 1500;
   const starPositions = [];
 
   for (let i = 0; i < starCount; i++) {
-    const x = (Math.random() - 0.5) * 100;
-    const y = (Math.random() - 0.5) * 100;
-    const z = (Math.random() - 0.5) * 100;
+    const x = (Math.random() - 0.5) * 300;
+    const y = (Math.random() - 0.5) * 300;
+    const z = (Math.random() - 0.5) * 300;
     starPositions.push(x, y, z);
   }
 
@@ -38,15 +42,18 @@ function addStars(scene) {
   );
 
   const starMaterial = new THREE.PointsMaterial({
+    map: starTexture,
+    transparent: true,
     color: 0xffffff,
-    size: 0.6
+    size: 2,
+    sizeAttenuation: true
   });
 
   const stars = new THREE.Points(starGeometry, starMaterial);
   scene.add(stars);
 }
 
-// ⭐ ADD STARS
+// ADD STARS
 addStars(scene);
   // EARTH
   const earthGeo = new THREE.SphereGeometry(1.3, 32, 32);

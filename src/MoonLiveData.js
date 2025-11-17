@@ -5,7 +5,7 @@
 
 export async function getMoonLive() {
     try {
-        // NASA Horizons API for Moon
+        // NASA Horizons API for Moon (ID = 301)
         const url =
           "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND='301'&OBJ_DATA='YES'";
 
@@ -25,7 +25,7 @@ export async function getMoonLive() {
     } catch (error) {
         console.error("MOON LIVE ERROR:", error);
 
-        // fallback if NASA down
+        // fallback if NASA unreachable
         return {
             name: "MOON",
             x: 1,

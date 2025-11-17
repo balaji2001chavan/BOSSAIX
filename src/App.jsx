@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { runUniverseEngine } from "./UniverseEngine";
+import { initUniverse } from "./UniverseEngine";
 
 export default function App() {
+  
   const mountRef = useRef(null);
 
   useEffect(() => {
-    runUniverseEngine(mountRef.current);
+    initUniverse(mountRef.current);
   }, []);
 
   return (
@@ -15,6 +16,7 @@ export default function App() {
         width: "100vw",
         height: "100vh",
         background: "black",
+        overflow: "hidden",
       }}
     ></div>
   );

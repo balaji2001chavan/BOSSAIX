@@ -1,37 +1,17 @@
-// ----------------------------------------------
-// BOSS AIX — SMART SERVER (Render Compatible)
-// ----------------------------------------------
-
 const express = require("express");
 const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 10000;
 
-// Force correct absolute path
-const BUILD_DIR = path.join(__dirname, "build");
+// Serve all files from root directory
+app.use(express.static(__dirname));
 
-// Log for debugging
-console.log("🚀 Server starting...");
-console.log("📁 Serving from:", BUILD_DIR);
-
-// 1) Serve static React build
-app.use(express.static(BUILD_DIR));
-
-// 2) Fallback for all routes (React SPA)
+// Default fallback – load index.html from ROOT
 app.get("*", (req, res) => {
-  const indexPath = path.join(BUILD_DIR, "index.html");
-
-  console.log("➡️  Serving:", indexPath);
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error("❌ Error serving index.html:", err);
-      res.status(500).send("Server Error");
-    }
-  });
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// 3) Start server
-const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`🔥 BossAIX server running on port ${PORT}`);
+  console.log("🔥 BossAIX LIVE server running on port", PORT);
 });

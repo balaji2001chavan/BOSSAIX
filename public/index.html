@@ -2,12 +2,119 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>BossAIX Universe LIVE</title>
+  <title>BossAIX – Universe Live Engine</title>
+
   <style>
-    body { background:black; color:white; text-align:center; margin-top:40vh; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      font-family: Arial, sans-serif;
+    }
   </style>
 </head>
+
 <body>
-  <h1>BossAIX — Universe Is LIVE</h1>
+  <canvas id="universe"></canvas>
+
+  <!-- THREE.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
+  <!-- Universe Engine -->
+  <script>
+    // CANVAS & RENDERER
+    const canvas = document.getElementById("universe");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // SCENE
+    const scene = new THREE.Scene();
+
+    // CAMERA
+    const camera = new THREE.PerspectiveCamera(
+      55,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      50000
+    );
+    camera.position.set(0, 0, 600);
+
+    // ⭐ STARFIELD
+    function createStarfield() {
+      const starGeometry = new THREE.BufferGeometry();
+      const starCount = 8000;
+
+      const starPositions = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount * 3; i++) {
+        starPositions[i] = (Math.random() - 0.5) * 8000;
+      }
+
+      starGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(starPositions, 3)
+      );
+
+      const starMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1,
+      });
+
+      return new THREE.Points(starGeometry, starMaterial);
+    }
+
+    const stars = createStarfield();
+    scene.add(stars);
+
+    // 🌍 EARTH HD TEXTURE
+    const earthTexture = new THREE.TextureLoader().load(
+      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/earth_daymap.jpg"
+    );
+
+    const earthBump = new THREE.TextureLoader().load(
+      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/earth_bump.jpg"
+    );
+
+    const earthGeometry = new THREE.SphereGeometry(150, 64, 64);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+      map: earthTexture,
+      bumpMap: earthBump,
+      bumpScale: 0.7,
+    });
+
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+
+    // 🌞 SUN LIGHT (REALISTIC)
+    const sunlight = new THREE.PointLight(0xffffff, 2);
+    sunlight.position.set(800, 200, 300);
+    scene.add(sunlight);
+
+    // AMBIENT LIGHT
+    const ambient = new THREE.AmbientLight(0x222222);
+    scene.add(ambient);
+
+    // ANIMATION LOOP
+    function animate() {
+      requestAnimationFrame(animate);
+
+      earth.rotation.y += 0.002;
+      stars.rotation.y += 0.0003;
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // RESIZE HANDLING
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+
 </body>
 </html>

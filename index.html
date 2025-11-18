@@ -2,9 +2,124 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>BossAIX LIVE</title>
+  <title>BossAIX – Real Universe Engine</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
 </head>
-<body style="background:black;color:white;text-align:center;margin-top:40vh;">
-  <h1>BossAIX Universe is LIVE</h1>
+
+<body>
+  <canvas id="universe"></canvas>
+
+  <!-- THREE.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
+  <script>
+    // CANVAS + RENDERER
+    const canvas = document.getElementById("universe");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // SCENE
+    const scene = new THREE.Scene();
+
+    // CAMERA
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      20000
+    );
+    camera.position.z = 500;
+
+    // LIGHT (SUN)
+    const light = new THREE.PointLight(0xffffff, 2);
+    light.position.set(200, 0, 200);
+    scene.add(light);
+
+    // AMBIENT LIGHT
+    scene.add(new THREE.AmbientLight(0x333333));
+
+    // EARTH
+    const loader = new THREE.TextureLoader();
+    const earthTexture = loader.load(
+      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/earth_daymap.jpg"
+    );
+    const earthBump = loader.load(
+      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/earth_bump.jpg"
+    );
+
+    const earth = new THREE.Mesh(
+      new THREE.SphereGeometry(150, 64, 64),
+      new THREE.MeshPhongMaterial({
+        map: earthTexture,
+        bumpMap: earthBump,
+        bumpScale: 0.8
+      })
+    );
+    scene.add(earth);
+
+    // MOON
+    const moonTexture = loader.load(
+      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/moon.jpg"
+    );
+
+    const moon = new THREE.Mesh(
+      new THREE.SphereGeometry(40, 32, 32),
+      new THREE.MeshPhongMaterial({ map: moonTexture })
+    );
+    scene.add(moon);
+
+    // STARFIELD
+    function starfield() {
+      const geometry = new THREE.BufferGeometry();
+      const count = 8000;
+      const positions = new Float32Array(count * 3);
+
+      for (let i = 0; i < count * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 8000;
+      }
+
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1
+      });
+
+      return new THREE.Points(geometry, material);
+    }
+
+    scene.add(starfield());
+
+    // ANIMATE
+    function animate() {
+      requestAnimationFrame(animate);
+
+      earth.rotation.y += 0.002;
+
+      // moon orbit
+      const t = Date.now() * 0.0005;
+      moon.position.set(Math.cos(t) * 300, 0, Math.sin(t) * 300);
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // RESIZE
+    window.addEventListener("resize", () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+  </script>
 </body>
 </html>

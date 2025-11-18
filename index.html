@@ -2,75 +2,37 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>BossAIX – Universe Engine Fixed</title>
+  <title>BossAIX Universe Engine</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: black;
-      height: 100%;
-      width: 100%;
-    }
+    body { margin: 0; overflow: hidden; background: black; }
   </style>
 </head>
 
 <body>
   <canvas id="universe"></canvas>
 
-  <!-- LOAD THREE.JS FIRST (VERY IMPORTANT) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <!-- THREE.js from OFFICIAL GitHub (Never fails) -->
+  <script src="https://raw.githubusercontent.com/mrdoob/three.js/r152/build/three.min.js"></script>
 
-  <!-- NOW UNIVERSE ENGINE -->
   <script>
-    console.log("THREE version:", THREE);
+    console.log("THREE loaded:", THREE); // Debug
 
-    // CANVAS + RENDERER
     const canvas = document.getElementById("universe");
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ canvas });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // SCENE
     const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 10000);
+    camera.position.z = 200;
 
-    // CAMERA
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      20000
-    );
-    camera.position.z = 500;
+    const geo = new THREE.SphereGeometry(50, 32, 32);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const sphere = new THREE.Mesh(geo, mat);
+    scene.add(sphere);
 
-    // LIGHT
-    const light = new THREE.PointLight(0xffffff, 2);
-    light.position.set(200, 0, 200);
-    scene.add(light);
-
-    // AMBIENT LIGHT
-    scene.add(new THREE.AmbientLight(0x333333));
-
-    // EARTH
-    const loader = new THREE.TextureLoader();
-
-    const earthTexture = loader.load(
-      "https://raw.githubusercontent.com/itsRajat7/NASA-Textures/main/earth_daymap.jpg"
-    );
-
-    const earth = new THREE.Mesh(
-      new THREE.SphereGeometry(150, 64, 64),
-      new THREE.MeshPhongMaterial({
-        map: earthTexture,
-      })
-    );
-    scene.add(earth);
-
-    // ANIMATION
-    function animate() {
+    function animate(){
       requestAnimationFrame(animate);
-
-      earth.rotation.y += 0.002;
-
+      sphere.rotation.y += 0.01;
       renderer.render(scene, camera);
     }
 

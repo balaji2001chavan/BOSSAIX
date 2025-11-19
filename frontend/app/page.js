@@ -1,5 +1,7 @@
-import ChatUI from "../components/ChatUI";
+"use client";
+
+import App from "../react/App.jsx";
 
 export default function Home() {
-  return <ChatUI />;
+  return <App />;
 }

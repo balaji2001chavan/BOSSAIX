@@ -2,7 +2,10 @@ export async function POST(req) {
   const body = await req.json();
   const userMessage = body.message || "";
 
+  console.log("User:", userMessage);
+
+  // Future AI integration येईल नंतर
   return Response.json({
-    reply: "Boss AIX Reply: " + userMessage
+    reply: `Boss AIX Smart Response: ${userMessage}`
   });
 }

@@ -1,8 +1,3 @@
-export const metadata = {
-  title: "Boss AIX Platform",
-  description: "Next-gen AI platform UI",
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

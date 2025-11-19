@@ -7,12 +7,10 @@ export default function Home() {
   const [input, setInput] = useState("");
 
   async function sendMessage() {
-    if (!input) return;
+    if (!input.trim()) return;
 
-    // Add user message to UI
     setMessages(prev => [...prev, { sender: "You", text: input }]);
 
-    // Send to backend
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,9 +19,7 @@ export default function Home() {
 
     const data = await res.json();
 
-    // Add AI reply
     setMessages(prev => [...prev, { sender: "AI", text: data.reply }]);
-
     setInput("");
   }
 
@@ -37,7 +33,7 @@ export default function Home() {
       padding: "20px"
     }}>
       
-      <h1 style={{ textAlign: "center" }}>BOSS AIX AI Chat</h1>
+      <h1 style={{ textAlign: "center", fontSize: "30px" }}>🔥 BOSS AIX AI CHAT</h1>
 
       <div style={{
         flex: 1,
@@ -48,7 +44,7 @@ export default function Home() {
       }}>
         {messages.map((msg, i) => (
           <p key={i}>
-            <b>{msg.sender}: </b> {msg.text}
+            <b>{msg.sender}:</b> {msg.text}
           </p>
         ))}
       </div>
@@ -57,6 +53,7 @@ export default function Home() {
         <input 
           value={input}
           onChange={e => setInput(e.target.value)}
+          placeholder="Type your command..."
           style={{
             flex: 1,
             padding: "10px",
@@ -64,7 +61,6 @@ export default function Home() {
             border: "1px solid #00ffff",
             color: "#00ffff"
           }}
-          placeholder="Type your message..."
         />
         <button 
           onClick={sendMessage}

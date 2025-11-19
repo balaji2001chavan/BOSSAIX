@@ -13,7 +13,7 @@ export default function Home() {
     setMessages(prev => [...prev, { sender: "You", text: input }]);
 
     // Send to backend
-    const res = await fetch("https://bossaix.onrender.com/api/chat", {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: input }),

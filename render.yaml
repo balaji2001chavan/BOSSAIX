@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: bossaix-galaxy
-    env: node
-    buildCommand: "npm install && npm run build"
-    startCommand: "node server.js"
-    staticPublishPath: "public"
-    plan: free

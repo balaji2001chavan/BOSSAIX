@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import UniverseCore from "./UniverseCore";import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { createUniverseCore } from "./UniverseCore";
 

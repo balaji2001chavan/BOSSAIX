@@ -1,5 +1,4 @@
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const msg = (body.message || "").trim();
-    const api
+    
+const res = await fetch("https://bossaix-1.onrender.com/api/chat", {

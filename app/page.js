@@ -4,13 +4,13 @@ async function sendToAI() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: input })
   });
-
+<button onClick={startListening} style={{padding:"10px", fontSize:"20px"}}>
+  🎙 बोल
+</button>
   const audioBlob = await res.blob();
   const audioUrl = URL.createObjectURL(audioBlob);
   
   const audio = new Audio(audioUrl);
   audio.play();
 }
-<button onClick={startListening} style={{padding:"10px", fontSize:"20px"}}>
-  🎙 बोल
-</button>
+

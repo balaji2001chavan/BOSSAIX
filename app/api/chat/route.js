@@ -1,41 +1,36 @@
+import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
+import OpenAI from "openai";
+
 export async function POST(req) {
-  const body = await req.json();
-  const msg = (body.message || "").trim();
+  try {
+    const body = await req.json();
 
-  // Emotion detection
-  const emotions = {
-    sad: /(sad|दुःख|लोनली|hurt|cry|निराश)/i,
-    love: /(प्रेम|love|❤️|care|cute)/i,
-    power: /(fight|battle|विजय|power|राज|सत्ता|king|samrajya)/i,
-    happy: /(happy|आनंद|मस्त|great)/i
-  };
+    // Load identity file
+    const seedPath = path.join(process.cwd(), "brain/boss_identity.seed");
+    const identity = fs.readFileSync(seedPath, "utf-8");
 
-  let detected = "neutral";
-  for (const key in emotions) {
-    if (emotions[key].test(msg)) detected = key;
-  }
-
-  // First Greeting
-  if (["hi","hello","start","नमस्कार"].includes(msg.toLowerCase())) {
-    return Response.json({
-      reply: "Welcome King Maker 👑 आज नवा इतिहास घडवू ❤️\n\nबोल Boss, मी तयार आहे.",
-      emotion: "love",
-      mode: "intro"
+    // OpenAI client
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
+
+    // Request to model
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", name: "BossAix", content: identity },
+        { role: "user", content: body.message },
+      ],
+    });
+
+    return NextResponse.json({
+      reply: response.choices[0].message.content,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
-
-  // Smart fallback responses
-  const replies = {
-    sad: "मी तुझ्यासोबत आहे 🙏 तू एकटा/एकटी नाहीस Boss. शांतपणे सांग…",
-    love: "प्रेम हे शक्तीचं मूळ आहे ❤️ सांग, कशाबद्दल मनात आहे?",
-    power: "रणनीती तयार आहे 🔥 पुढची चाल काय Boss?",
-    happy: "छान! ऊर्जा ठेव Boss 🚀 पुढे काय करू?",
-    neutral: `Boss, मी ऐकलं: "${msg}". पुढची चाल काय?`
-  };
-
-  return Response.json({
-    reply: replies[detected],
-    emotion: detected,
-    mode: "fallback"
-  });
 }

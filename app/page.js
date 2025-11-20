@@ -6,11 +6,33 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
-  async function sendMessage() {
+  // 🔹 Voice Playback Function
+  async function speak(text) {
+    try {
+      const res = await fetch("/api/voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      const audioData = await res.arrayBuffer();
+      const blob = new Blob([audioData], { type: "audio/mpeg" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+
+    } catch (err) {
+      console.error("Voice error:", err);
+    }
+  }
+
+  // 🔹 Send Message Handler
+  async function handleSend() {
     if (!input.trim()) return;
 
     const userMsg = { sender: "You", text: input };
     setMessages((prev) => [...prev, userMsg]);
+
     setInput("");
 
     const res = await fetch("/api/chat", {
@@ -20,52 +42,70 @@ export default function Home() {
     });
 
     const data = await res.json();
-    const botMsg = { sender: "BOSS AIX", text: data.reply };
+
+    const botMsg = {
+      sender: "BOSS AIX",
+      text: data.reply,
+    };
+
     setMessages((prev) => [...prev, botMsg]);
+
+    // 🔥 Voice Output
+    speak(data.reply);
   }
 
   return (
-    <div style={{ background: "#000", color: "#fff", height: "100vh", padding: "20px" }}>
-      <h1 style={{ fontSize: "26px", color: "#00e5ff" }}>🔥 BOSS AIX • AI Chat</h1>
+    <div style={{
+      background: "#000",
+      color: "#0ff",
+      height: "100vh",
+      padding: "20px",
+      fontFamily: "monospace"
+    }}>
+      
+      <h1 style={{ textAlign: "center", fontSize: "28px" }}>
+        🔥 BOSS AIX — The Living Intelligence
+      </h1>
 
+      {/* Chat Box */}
       <div style={{
-        marginTop: "20px",
-        overflowY: "scroll",
         height: "75vh",
+        overflowY: "auto",
+        border: "1px solid #0ff",
         padding: "10px",
-        background: "#111",
-        borderRadius: "10px"
+        marginTop: "20px"
       }}>
-        {messages.map((msg, i) => (
-          <p key={i} style={{ margin: "10px 0", color: msg.sender === "You" ? "#0f0" : "#ffde59" }}>
-            <b>{msg.sender}:</b> {msg.text}
+        {messages.map((msg, idx) => (
+          <p key={idx} style={{ margin: "10px 0" }}>
+            <strong>{msg.sender}: </strong>{msg.text}
           </p>
         ))}
       </div>
 
-      <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
+      {/* Input Area */}
+      <div style={{ display: "flex", marginTop: "20px" }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
+          placeholder="Speak to your AI King..."
           style={{
             flex: 1,
             padding: "10px",
-            borderRadius: "5px",
-            background: "#222",
-            color: "white",
-            border: "1px solid #444"
+            background: "#111",
+            color: "#0ff",
+            border: "1px solid #0ff"
           }}
         />
         <button
-          onClick={sendMessage}
+          onClick={handleSend}
           style={{
             padding: "10px 20px",
-            borderRadius: "5px",
-            background: "#00e5ff",
-            border: "none",
-            fontWeight: "bold"
-          }}>
+            background: "#0ff",
+            color: "#000",
+            fontWeight: "bold",
+            border: "none"
+          }}
+        >
           Send
         </button>
       </div>

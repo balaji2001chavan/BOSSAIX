@@ -1,6 +1,10 @@
 "use client";
 import { useState } from "react";
-
+useEffect(() => {
+  setChat([
+    { bot: "👑 Welcome King Maker… आज नवा इतिहास घडवू! मी तयार आहे." }
+  ]);
+}, []);
 export default function Home() {
   const [msg, setMsg] = useState("");
   const [chat, setChat] = useState([]);

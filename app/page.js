@@ -1,17 +1,39 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
+  // --- Voice Output ---
+  function speak(text) {
+    const v = new SpeechSynthesisUtterance(text);
+    v.lang = "mr-IN";
+    v.rate = 0.95;
+    v.pitch = 1.4;
+    v.volume = 1;
+    speechSynthesis.speak(v);
+  }
+
+  // Auto welcome voice
+  useEffect(() => {
+    speak("🌟 Welcome King Maker, आज नवा इतिहास घडवू! 🌟");
+  }, []);
+
+  // --- Voice Input ---
+  function startListening() {
+    const recog = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recog.lang = "mr-IN";
+    recog.onresult = (e) => setInput(e.results[0][0].transcript);
+    recog.start();
+  }
+
+  // --- Send Message ---
   async function sendMessage() {
     if (!input.trim()) return;
 
-    const userMsg = { role: "user", content: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput("");
+    // Add user message
+    setMessages(prev => [...prev, { role: "user", content: input }]);
 
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -19,10 +41,15 @@ export default function Home() {
       body: JSON.stringify({ message: input })
     });
 
+    setInput("");
+
     const data = await res.json();
 
-    const botMsg = { role: "assistant", content: data.reply };
-    setMessages(prev => [...prev, botMsg]);
+    // Add bot message
+    setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+
+    // Speak response
+    speak(data.reply);
   }
 
   return (
@@ -37,6 +64,7 @@ export default function Home() {
         🔥 BOSS AiX — Universal Intelligence
       </h1>
 
+      {/* Chat Window */}
       <div style={{
         border: "1px solid #555",
         padding: "10px",
@@ -53,11 +81,12 @@ export default function Home() {
         ))}
       </div>
 
+      {/* Input Controls */}
       <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder="Speak to the Kingmaker..."
+          placeholder="Speak to your universe..."
           style={{
             flex: 1,
             padding: "10px",
@@ -79,6 +108,20 @@ export default function Home() {
           }}
         >
           Send
+        </button>
+
+        <button
+          onClick={startListening}
+          style={{
+            padding: "10px 20px",
+            fontSize: "18px",
+            background: "red",
+            border: "none",
+            color: "white",
+            cursor: "pointer"
+          }}
+        >
+          🎤
         </button>
       </div>
     </main>

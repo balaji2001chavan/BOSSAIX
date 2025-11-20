@@ -1,11 +1,10 @@
 {
   "name": "boss-aix",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node .next/standalone/server.js"
+    "start": "next start -p $PORT"
   },
   "dependencies": {
     "next": "14.0.0",

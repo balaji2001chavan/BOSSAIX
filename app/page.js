@@ -11,3 +11,6 @@ async function sendToAI() {
   const audio = new Audio(audioUrl);
   audio.play();
 }
+<button onClick={startListening} style={{padding:"10px", fontSize:"20px"}}>
+  🎙 बोल
+</button>

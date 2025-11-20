@@ -2,8 +2,8 @@
   "name": "boss-aix",
   "version": "1.0.0",
   "scripts": {
-    "build": "next build",
-    "start": "node .next/standalone/server.js"
+    "build": "next build && next export",
+    "start": "npx serve out -p $PORT"
   },
   "dependencies": {
     "next": "14.0.0",

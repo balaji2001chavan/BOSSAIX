@@ -2,11 +2,12 @@ export async function POST(req) {
   const body = await req.json();
   const msg = (body.message || "").trim();
 
-  // simple emotion detection
+  // Emotion detection
   const emotions = {
-    sad: /(दुःख|sad|hurt|lonely|cry|निराश)/i,
-    love: /(love|❤️|प्रेम|care|काळजी)/i,
-    goal: /(goal|dream|vision|साम्राज्य|यश|plan)/i
+    sad: /(sad|दुःख|लोनली|hurt|cry|निराश)/i,
+    love: /(प्रेम|love|❤️|care|cute)/i,
+    power: /(fight|battle|विजय|power|राज|सत्ता|king|samrajya)/i,
+    happy: /(happy|आनंद|मस्त|great)/i
   };
 
   let detected = "neutral";
@@ -14,35 +15,27 @@ export async function POST(req) {
     if (emotions[key].test(msg)) detected = key;
   }
 
-  // first greeting
-  const lower = msg.toLowerCase();
-  if (["hi", "hello", "start", "नमस्कार"].includes(lower)) {
+  // First Greeting
+  if (["hi","hello","start","नमस्कार"].includes(msg.toLowerCase())) {
     return Response.json({
-      reply: "Welcome King Maker, आज नवा इतिहास घडवू ❤️\n\nबोल Boss, मी जागा आहे…",
-      mode: "fallback",
-      emotion: "intro"
+      reply: "Welcome King Maker 👑 आज नवा इतिहास घडवू ❤️\n\nबोल Boss, मी तयार आहे.",
+      emotion: "love",
+      mode: "intro"
     });
   }
 
-  let reply;
-
-  switch (detected) {
-    case "sad":
-      reply = "मी आहे King Maker 💛 तू एकटा नाहीस… शांतपणे सांग, काय झालं?";
-      break;
-    case "love":
-      reply = "प्रेम खूप सुंदर आहे ❤️ तू जे जाणवतो आहेस ते महत्वाचं आहे. अजून सांग.";
-      break;
-    case "goal":
-      reply = "तुझं साम्राज्य तुझी वाट पाहत आहे 🔥 Vision सांग Boss, पुढची चाल ठरवूया.";
-      break;
-    default:
-      reply = `Boss, मी ऐकलं: "${msg}". पुढची चाल काय? 🔥`;
-  }
+  // Smart fallback responses
+  const replies = {
+    sad: "मी तुझ्यासोबत आहे 🙏 तू एकटा/एकटी नाहीस Boss. शांतपणे सांग…",
+    love: "प्रेम हे शक्तीचं मूळ आहे ❤️ सांग, कशाबद्दल मनात आहे?",
+    power: "रणनीती तयार आहे 🔥 पुढची चाल काय Boss?",
+    happy: "छान! ऊर्जा ठेव Boss 🚀 पुढे काय करू?",
+    neutral: `Boss, मी ऐकलं: "${msg}". पुढची चाल काय?`
+  };
 
   return Response.json({
-    reply,
-    mode: "fallback",
-    emotion: detected
+    reply: replies[detected],
+    emotion: detected,
+    mode: "fallback"
   });
 }
